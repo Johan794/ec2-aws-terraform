@@ -1,3 +1,3 @@
-output "public_ip" {
-  value  = "${aws_instance.web.public_ip}"
+output "private_ips" {
+  value  = aws_network_interface.aws_nf.private_ips
 }
