@@ -12,3 +12,8 @@ variable "private_ips" {
   type        = list(string)
   description = "private ips"
 }
+
+variable "instance_type" {
+  type        = string
+  description = "instance type"
+}

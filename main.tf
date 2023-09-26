@@ -127,16 +127,10 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_instance" "ec2" {
-  ami           = data.aws_ami.ubuntu.id #Get the AMI ID
-  instance_type = "t2.micro" #Set the instance type
-  #Assign the network interface
-  network_interface {
-    network_interface_id = aws_network_interface.aws_nf.id
-    device_index         = 0
-  }
-  #Tags
-  tags = {
-    Name = "ec2-VM"
-  }
+#Create the instance calling the module
+module "vm"{
+  source = "./modules/vm"
+  ami = data.aws_ami.ubuntu.id
+  instance_type = "${var.instance_type}"
+  network_interface_id = aws_network_interface.aws_nf.id
 }

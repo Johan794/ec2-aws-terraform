@@ -1,5 +1,5 @@
-# EC2 aws with terraform 
-In this repo you will see how to deploy an EC2 instance with a subnet using terraform. <br>
+# EC2 aws with terraform  using modules
+In this repo you will see how to deploy an EC2 instance  set in a new module with a subnet using terraform. <br>
 
 ## Configuration 👓
 
@@ -246,21 +246,53 @@ This Terraform code creates a route in the specified route table (`aws_route_tab
 ```
 
 ## 10.  Create your instance with your configuration
+First you need to create a new folder called modules and inside of it create a new folder called vm, then create a new file called main.tf and paste the following code:
+
+*Variables that provide de configuraton for the VM:*
+
+*/modules/vm/variables.tf*
  ```bash
-resource "aws_instance" "ec2" {
-  ami           = data.aws_ami.ubuntu.id #Get the AMI ID
-  instance_type = "t2.micro" #Set the instance type
-  #Assign the network interface
-  network_interface {
-    network_interface_id = aws_network_interface.aws_nf.id
-    device_index         = 0
+  variable "ami" {
+    type        = string
+    description = "The ami ID to use for the instance"
   }
 
+  variable "instance_type" {
+    type        = string
+    description = "The type of instance to start"
+  }
 
+  variable "network_interface_id" {
+    type        = string
+    description = "The ID of the network interface to attach to the instance"
+  }
+ ```
+Define the resource for the VM:
+
+*/modules/vm/main.tf*
+```bash
+resource "aws_instance" "ec2" {
+  ami           = var.ami #Get the AMI ID
+  instance_type = "${var.instance_type}"#"t2.micro" #Set the instance type
+  #Assign the network interface
+  network_interface {
+    network_interface_id = var.network_interface_id #aws_network_interface.aws_nf.id
+    device_index         = 0
+  }
   #Tags
   tags = {
     Name = "ec2-VM"
   }
+}
+```
+
+Call the module in your main tf file and provide the values for the variables:
+```bash
+module "vm"{
+  source = "./modules/vm"
+  ami = data.aws_ami.ubuntu.id
+  instance_type = "${var.instance_type}"
+  network_interface_id = aws_network_interface.aws_nf.id
 }
 ```
 Here you will define an AWS EC2 instance resource using the AWS provider. It provisions a virtual machine (EC2 instance) with specific configurations.
